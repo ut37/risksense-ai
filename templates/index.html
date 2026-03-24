@@ -1,135 +1,313 @@
-
 <!DOCTYPE html>
 <html>
-
 <head>
-<title>RiskSense AI</title>
+    <title>RiskSense AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            position: relative;
+        }
 
-<style>
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            width: auto;
+        }
 
-body{
-font-family: Arial, sans-serif;
-background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
-color:white;
-}
+        .logout-btn:hover {
+            background: #e63b3b;
+            transform: scale(1.03);
+        }
 
-.container{
-background:#1e1e1e;
-padding:40px;
-border-radius:12px;
-box-shadow:0 0 25px rgba(0,229,255,0.3);
-width:360px;
-text-align:center;
-}
+        .container {
+            background: rgba(30, 30, 30, 0.70);
+            backdrop-filter: blur(6px);
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.18);
+            width: 380px;
+            text-align: center;
+        }
 
-h2{
-margin-bottom:5px;
-color:#00e5ff;
-}
+        h2 {
+            margin-bottom: 6px;
+            color: white;
+            font-size: 22px;
+            line-height: 1.2;
+        }
 
-.subtitle{
-font-size:13px;
-color:#bbb;
-margin-bottom:20px;
-}
+        .subtitle {
+            font-size: 13px;
+            color: #d6f3ff;
+            margin-bottom: 22px;
+            font-weight: 600;
+        }
 
-input{
-width:90%;
-padding:12px;
-margin:10px 0;
-border:1px solid #444;
-border-radius:6px;
-background:#2b2b2b;
-color:white;
-font-size:14px;
-}
+        input, select {
+            width: 95%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
 
-input::placeholder{
-color:#aaa;
-}
+        input::placeholder {
+            color: #d0d0d0;
+        }
 
-button{
-width:95%;
-padding:12px;
-background:linear-gradient(to right,#00c6ff,#0072ff);
-color:white;
-border:none;
-border-radius:6px;
-font-size:16px;
-cursor:pointer;
-transition:0.3s;
-}
+        select {
+            color: white;
+        }
 
-button:hover{
-transform:scale(1.05);
-}
+        option {
+            color: black;
+        }
 
-.result{
-margin-top:20px;
-font-size:18px;
-font-weight:bold;
-}
+        button {
+            width: 95%;
+            padding: 12px;
+            background: linear-gradient(to right, #eefcff, #66ecff);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 8px;
+            box-sizing: border-box;
+        }
 
-progress{
-width:100%;
-height:20px;
-margin-top:10px;
-}
+        button:hover {
+            transform: scale(1.03);
+        }
 
-</style>
+        #status {
+            margin-top: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
 
+        .progress {
+            width: 95%;
+            height: 16px;
+            background: #6a5a52;
+            border-radius: 10px;
+            margin: 16px auto 8px auto;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #00ff99, #00e5ff);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+
+        #percent {
+            font-size: 14px;
+            margin-top: 2px;
+            margin-bottom: 8px;
+            color: #cfefff;
+            font-weight: bold;
+        }
+
+        .safe {
+            color: #00ff99;
+            animation: blinkSafe 1s infinite;
+        }
+
+        .fraud {
+            color: #ff4d4d;
+            animation: blinkFraud 1s infinite;
+        }
+
+        .medium {
+            color: #ffd54f;
+            animation: blinkMedium 1s infinite;
+        }
+
+        @keyframes blinkSafe {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        @keyframes blinkFraud {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        @keyframes blinkMedium {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        .secondary-btn {
+            background: linear-gradient(to right, #eefcff, #66ecff);
+            margin-top: 10px;
+        }
+
+        .recent {
+            margin-top: 18px;
+            text-align: left;
+        }
+
+        .recent h4 {
+            margin-bottom: 10px;
+            font-size: 15px;
+            color: white;
+        }
+
+        #history {
+            max-height: 140px;
+            overflow-y: auto;
+            font-size: 13px;
+            color: #e5faff;
+            padding-right: 4px;
+        }
+
+        .history-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
+    <button class="logout-btn" onclick="window.location.href='/'">Logout</button>
 
-<h2>🔐 RiskSense AI</h2>
-<p class="subtitle">Machine Learning based transaction risk analysis</p>
+    <div class="container">
+        <h2>AI Transaction Risk<br>Analyzer</h2>
+        <p class="subtitle">RiskSense AI – Smart Fraud Detection Engine</p>
 
-<form action="/predict" method="post">
+        <input id="userId" type="text" placeholder="Enter User ID">
+        <input id="amount" type="number" placeholder="Enter Transaction Amount">
 
-<input type="number" name="amount" placeholder="Transaction Amount" required>
+        <select id="time">
+            <option value="">Processing Time</option>
+            <option value="0">Instant</option>
+            <option value="1">1 sec</option>
+            <option value="2">2 sec</option>
+        </select>
 
-<input type="number" name="time" placeholder="Transaction Time" required>
+        <button onclick="checkRisk()">Analyze Transaction</button>
 
-<input type="number" name="user" placeholder="User ID" required>
+        <p id="status">Awaiting Input...</p>
 
-<button type="submit">Predict Risk</button>
+        <div class="progress">
+            <div id="bar" class="progress-bar"></div>
+        </div>
 
-</form>
+        <p id="percent">0%</p>
 
-{% if prediction_text %}
+        <button class="secondary-btn" onclick="resetForm()">Check Another Transaction</button>
 
-<div class="result">
+        <div class="recent">
+            <h4>Recent Transactions</h4>
+            <div id="history"></div>
+        </div>
+    </div>
 
-{% if prediction_text %}
-<h3 style="color: {{color}}">{{ prediction_text }}</h3>
+    <script>
+        function checkRisk() {
+            let userId = document.getElementById("userId").value;
+            let amount = parseFloat(document.getElementById("amount").value);
+            let time = document.getElementById("time").value;
+            let status = document.getElementById("status");
+            let bar = document.getElementById("bar");
+            let history = document.getElementById("history");
+            let percentText = document.getElementById("percent");
 
-<p>Fraud Risk Probability: {{prob}} %</p>
+            if (userId === "" || isNaN(amount) || time === "") {
+                status.className = "";
+                status.innerText = "Please fill all fields.";
+                bar.style.width = "0%";
+                bar.style.background = "#999";
+                percentText.innerText = "0%";
+                return;
+            }
 
-<progress value="{{prob}}" max="100"
-style="accent-color: {{color}};"></progress>
+            status.className = "";
+            status.innerText = "Analyzing Transaction...";
+            bar.style.width = "25%";
+            bar.style.background = "linear-gradient(to right, #58e8ff, #00e5ff)";
+            percentText.innerText = "25%";
 
-<button onclick="window.location.href='/'" 
-style="background:#444;margin-top:15px">
-Check Another Transaction
-</button>
+            setTimeout(() => {
+                let riskScore = 0;
 
-{% endif %}
+                if (amount > 80000) {
+                    riskScore = 90;
+                    status.innerText = "Fraud Transaction Detected";
+                    status.className = "fraud";
+                    bar.style.background = "#ff4d4d";
+                } else if (amount > 30000) {
+                    riskScore = 60;
+                    status.innerText = "Suspicious / Medium Risk";
+                    status.className = "medium";
+                    bar.style.background = "#ffd54f";
+                } else {
+                    riskScore = 20;
+                    status.innerText = "Safe Transaction";
+                    status.className = "safe";
+                    bar.style.background = "#00ff99";
+                }
 
-</div>
-{% endif %}
+                bar.style.width = riskScore + "%";
+                percentText.innerText = riskScore + "%";
 
-</div>
+                let now = new Date();
+                let timeString = now.toLocaleTimeString();
+
+                let entry = document.createElement("div");
+                entry.className = "history-item";
+                entry.innerHTML = `
+                    <strong>User:</strong> ${userId}<br>
+                    <strong>Amount:</strong> ₹${amount}<br>
+                    <strong>Status:</strong> ${status.innerText}<br>
+                    <strong>Time:</strong> ${timeString}
+                `;
+                history.prepend(entry);
+            }, 1500);
+        }
+
+        function resetForm() {
+            document.getElementById("userId").value = "";
+            document.getElementById("amount").value = "";
+            document.getElementById("time").value = "";
+            document.getElementById("status").innerText = "Awaiting Input...";
+            document.getElementById("status").className = "";
+            document.getElementById("bar").style.width = "0%";
+            document.getElementById("bar").style.background = "linear-gradient(to right, #00ff99, #00e5ff)";
+            document.getElementById("percent").innerText = "0%";
+        }
+    </script>
 
 </body>
-
 </html>
-
-
