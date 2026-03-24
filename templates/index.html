@@ -1,269 +1,135 @@
+
 <!DOCTYPE html>
 <html>
+
 <head>
 <title>RiskSense AI</title>
 
 <style>
-body {
-    margin:0;
-    font-family: Arial;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color:white;
+
+body{
+font-family: Arial, sans-serif;
+background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+color:white;
 }
 
-/* HEADER */
-.header {
-    display:flex;
-    justify-content:space-between;
-    padding:20px;
+.container{
+background:#1e1e1e;
+padding:40px;
+border-radius:12px;
+box-shadow:0 0 25px rgba(0,229,255,0.3);
+width:360px;
+text-align:center;
 }
 
-.logout {
-    background:red;
-    border:none;
-    padding:10px 20px;
-    border-radius:10px;
-    color:white;
-    cursor:pointer;
+h2{
+margin-bottom:5px;
+color:#00e5ff;
 }
 
-/* CENTER */
-.container {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:80vh;
+.subtitle{
+font-size:13px;
+color:#bbb;
+margin-bottom:20px;
 }
 
-/* CARD */
-.card {
-    width:420px;
-    padding:30px;
-    border-radius:20px;
-    background:rgba(255,255,255,0.05);
-    backdrop-filter:blur(12px);
-    border:1px solid rgba(255,255,255,0.1);
-    text-align:center;
+input{
+width:90%;
+padding:12px;
+margin:10px 0;
+border:1px solid #444;
+border-radius:6px;
+background:#2b2b2b;
+color:white;
+font-size:14px;
 }
 
-/* SUBTITLE */
-.subtitle {
-    font-size:14px;
-    color:#bbb;
+input::placeholder{
+color:#aaa;
 }
 
-/* INPUT */
-input, select {
-    width:100%;
-    padding:12px;
-    margin:10px 0;
-    border-radius:10px;
-    border:1px solid rgba(255,255,255,0.2);
-    background:rgba(255,255,255,0.08);
-    color:white;
-    outline:none;
+button{
+width:95%;
+padding:12px;
+background:linear-gradient(to right,#00c6ff,#0072ff);
+color:white;
+border:none;
+border-radius:6px;
+font-size:16px;
+cursor:pointer;
+transition:0.3s;
 }
 
-/* BUTTON */
-button {
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    background:linear-gradient(90deg,#00e5ff,#0072ff);
-    color:white;
-    cursor:pointer;
-    margin-top:10px;
+button:hover{
+transform:scale(1.05);
 }
 
-/* STATUS */
-#status {
-    margin-top:15px;
-    font-weight:bold;
-    color:#aaa;
+.result{
+margin-top:20px;
+font-size:18px;
+font-weight:bold;
 }
 
-/* PROGRESS */
-.progress {
-    width:100%;
-    height:20px;
-    background:#333;
-    border-radius:10px;
-    margin-top:10px;
+progress{
+width:100%;
+height:20px;
+margin-top:10px;
 }
 
-.progress-bar {
-    height:100%;
-    width:0%;
-    border-radius:10px;
-    transition:0.5s;
-}
-
-.safe { background:lime; }
-.fraud { background:red; }
-
-/* BLINK */
-.blink-safe { animation:blink 1s infinite; }
-.blink-fraud { animation:blink 1s infinite; }
-
-@keyframes blink {
-    50% { opacity:0.3; }
-}
-
-/* HISTORY */
-.history-item{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:10px;
-    margin-top:8px;
-    border-radius:8px;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.1);
-}
-
-.badge{
-    padding:4px 10px;
-    border-radius:20px;
-    font-size:12px;
-    font-weight:bold;
-}
-
-.safe-badge{
-    background:rgba(0,255,0,0.2);
-    color:lime;
-}
-
-.fraud-badge{
-    background:rgba(255,0,0,0.2);
-    color:red;
-}
-
-.recent {
-    margin-top:20px;
-    text-align:left;
-    font-size:13px;
-}
 </style>
-
-<script>
-let historyList = [];
-
-function checkRisk(){
-    let user = document.getElementById("user").value;
-    let amount = document.getElementById("amount").value;
-    let status = document.getElementById("status");
-    let bar = document.getElementById("bar");
-    let historyDiv = document.getElementById("history");
-
-    if(user === "" || amount === ""){
-        alert("Enter all details");
-        return;
-    }
-
-    status.innerHTML = "Analyzing...";
-    status.style.color = "#aaa";
-
-    setTimeout(() => {
-
-        let result = "";
-        let riskPercent = 0;
-
-        if(amount > 5000){
-            result = "Fraud";
-            riskPercent = 90;
-
-            status.innerHTML = `⚠ High Risk (${riskPercent}%)`;
-            status.style.color = "red";
-
-            bar.style.width = riskPercent + "%";
-            bar.className = "progress-bar fraud blink-fraud";
-
-        } else {
-            result = "Safe";
-            riskPercent = 35;
-
-            status.innerHTML = `✅ Safe (${riskPercent}%)`;
-            status.style.color = "lime";
-
-            bar.style.width = riskPercent + "%";
-            bar.className = "progress-bar safe blink-safe";
-        }
-
-        let time = new Date().toLocaleTimeString();
-
-        historyList.unshift({user, amount, result, time});
-        if(historyList.length > 5) historyList.pop();
-
-        historyDiv.innerHTML = "";
-        historyList.forEach(item => {
-            historyDiv.innerHTML += `
-            <div class="history-item">
-                <span>${item.user} | ₹${item.amount}<br><small>${item.time}</small></span>
-                <span class="badge ${item.result === 'Safe' ? 'safe-badge' : 'fraud-badge'}">
-                    ${item.result}
-                </span>
-            </div>`;
-        });
-
-    }, 800);
-}
-
-function resetForm(){
-    document.getElementById("user").value = "";
-    document.getElementById("amount").value = "";
-    document.getElementById("status").innerHTML = "Awaiting Input...";
-    document.getElementById("status").style.color = "#aaa";
-
-    let bar = document.getElementById("bar");
-    bar.style.width = "0%";
-    bar.className = "progress-bar";
-}
-</script>
 
 </head>
 
 <body>
 
-<div class="header">
-    <h2>RiskSense AI</h2>
-    <a href="/"><button class="logout">Logout</button></a>
-</div>
-
 <div class="container">
-    <div class="card">
 
-        <h2>Transaction Risk Analyzer</h2>
-        <p class="subtitle">Real-Time AI Fraud Detection System</p>
+<h2>🔐 RiskSense AI</h2>
+<p class="subtitle">Machine Learning based transaction risk analysis</p>
 
-        <input id="user" type="text" placeholder="Enter User ID">
+<form action="/predict" method="post">
 
-        <input id="amount" type="number" placeholder="Enter Transaction Amount">
+<input type="number" name="amount" placeholder="Transaction Amount" required>
 
-        <select>
-            <option>Processing Time</option>
-            <option>Instant</option>
-            <option>1 sec</option>
-            <option>2 sec</option>
-        </select>
+<input type="number" name="time" placeholder="Transaction Time" required>
 
-        <button onclick="checkRisk()">Analyze Transaction</button>
+<input type="number" name="user" placeholder="User ID" required>
 
-        <p id="status">Awaiting Input...</p>
+<button type="submit">Predict Risk</button>
 
-        <div class="progress">
-            <div id="bar" class="progress-bar"></div>
-        </div>
+</form>
 
-        <button onclick="resetForm()">Check Another Transaction</button>
+{% if prediction_text %}
 
-        <div class="recent">
-            <h4>Recent Transactions</h4>
-            <div id="history"></div>
-        </div>
+<div class="result">
 
-    </div>
+{% if prediction_text %}
+<h3 style="color: {{color}}">{{ prediction_text }}</h3>
+
+<p>Fraud Risk Probability: {{prob}} %</p>
+
+<progress value="{{prob}}" max="100"
+style="accent-color: {{color}};"></progress>
+
+<button onclick="window.location.href='/'" 
+style="background:#444;margin-top:15px">
+Check Another Transaction
+</button>
+
+{% endif %}
+
+</div>
+{% endif %}
+
 </div>
 
 </body>
+
 </html>
+
+
