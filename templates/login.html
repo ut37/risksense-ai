@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    font-family:Arial;
+}
+
+/* CLEAN GLASS CARD (NO HEAVY GLOW) */
+.card{
+    width:320px;
+    padding:30px;
+    border-radius:20px;
+
+    background:rgba(255,255,255,0.05);   /* glass effect */
+    backdrop-filter:blur(12px);
+
+    border:1px solid rgba(255,255,255,0.1);  /* subtle border */
+    box-shadow:0 4px 15px rgba(0,0,0,0.3);   /* normal shadow */
+
+    text-align:center;
+}
+
+h2{
+    color:#00e5ff;
+}
+
+.subtitle{
+    color:#aaa;
+    font-size:14px;
+    margin-bottom:10px;
+}
+
+/* INPUT (NO GLOW) */
+input{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border-radius:10px;
+
+    border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.08);
+
+    color:white;
+    outline:none;
+}
+
+/* ONLY FOCUS GLOW */
+input:focus{
+    border:1px solid #00e5ff;
+}
+
+/* PLACEHOLDER */
+input::placeholder{
+    color:#bbb;
+}
+
+/* BUTTON (SOFT LOOK) */
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+
+    background:linear-gradient(90deg,#00e5ff,#0072ff);
+    color:white;
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+/* SMALL HOVER ONLY */
+button:hover{
+    transform:scale(1.03);
+}
+
+/* SHOW PASSWORD */
+.show-pass{
+    text-align:right;
+    font-size:12px;
+    color:#00e5ff;
+    cursor:pointer;
+}
+
+/* SECURITY TEXT */
+.security{
+    font-size:12px;
+    color:#888;
+    margin-top:10px;
+}
+</style>
+
+<script>
+function togglePassword(){
+    let pass = document.getElementById("password");
+    pass.type = pass.type === "password" ? "text" : "password";
+}
+</script>
+
+</head>
+
+<body>
+
+<form method="POST" class="card">
+
+<h2>Login</h2>
+<p class="subtitle">AI Powered Fraud Detection System</p>
+
+<input type="text" name="username" placeholder="Username" required>
+
+<input type="password" id="password" name="password" placeholder="Password" required>
+
+<div class="show-pass" onclick="togglePassword()">Show Password</div>
+
+<button type="submit">Login</button>
+
+{% if error %}
+<p style="color:red;">{{error}}</p>
+{% endif %}
+
+<p class="security">🔒 Secure Login Powered by RiskSense AI</p>
+
+</form>
+
+</body>
+</html>

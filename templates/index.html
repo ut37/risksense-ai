@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>RiskSense AI</title>
+
+<style>
+body {
+    margin:0;
+    font-family: Arial;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white;
+}
+
+/* HEADER */
+.header {
+    display:flex;
+    justify-content:space-between;
+    padding:20px;
+}
+
+.logout {
+    background:red;
+    border:none;
+    padding:10px 20px;
+    border-radius:10px;
+    color:white;
+    cursor:pointer;
+}
+
+/* CENTER */
+.container {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:80vh;
+}
+
+/* CARD */
+.card {
+    width:420px;
+    padding:30px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.1);
+    text-align:center;
+}
+
+/* SUBTITLE */
+.subtitle {
+    font-size:14px;
+    color:#bbb;
+}
+
+/* INPUT */
+input, select {
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.2);
+    background:rgba(255,255,255,0.08);
+    color:white;
+    outline:none;
+}
+
+/* BUTTON */
+button {
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(90deg,#00e5ff,#0072ff);
+    color:white;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+/* STATUS */
+#status {
+    margin-top:15px;
+    font-weight:bold;
+    color:#aaa;
+}
+
+/* PROGRESS */
+.progress {
+    width:100%;
+    height:20px;
+    background:#333;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.progress-bar {
+    height:100%;
+    width:0%;
+    border-radius:10px;
+    transition:0.5s;
+}
+
+.safe { background:lime; }
+.fraud { background:red; }
+
+/* BLINK */
+.blink-safe { animation:blink 1s infinite; }
+.blink-fraud { animation:blink 1s infinite; }
+
+@keyframes blink {
+    50% { opacity:0.3; }
+}
+
+/* HISTORY */
+.history-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px;
+    margin-top:8px;
+    border-radius:8px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+.badge{
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.safe-badge{
+    background:rgba(0,255,0,0.2);
+    color:lime;
+}
+
+.fraud-badge{
+    background:rgba(255,0,0,0.2);
+    color:red;
+}
+
+.recent {
+    margin-top:20px;
+    text-align:left;
+    font-size:13px;
+}
+</style>
+
+<script>
+let historyList = [];
+
+function checkRisk(){
+    let user = document.getElementById("user").value;
+    let amount = document.getElementById("amount").value;
+    let status = document.getElementById("status");
+    let bar = document.getElementById("bar");
+    let historyDiv = document.getElementById("history");
+
+    if(user === "" || amount === ""){
+        alert("Enter all details");
+        return;
+    }
+
+    status.innerHTML = "Analyzing...";
+    status.style.color = "#aaa";
+
+    setTimeout(() => {
+
+        let result = "";
+        let riskPercent = 0;
+
+        if(amount > 5000){
+            result = "Fraud";
+            riskPercent = 90;
+
+            status.innerHTML = `⚠ High Risk (${riskPercent}%)`;
+            status.style.color = "red";
+
+            bar.style.width = riskPercent + "%";
+            bar.className = "progress-bar fraud blink-fraud";
+
+        } else {
+            result = "Safe";
+            riskPercent = 35;
+
+            status.innerHTML = `✅ Safe (${riskPercent}%)`;
+            status.style.color = "lime";
+
+            bar.style.width = riskPercent + "%";
+            bar.className = "progress-bar safe blink-safe";
+        }
+
+        let time = new Date().toLocaleTimeString();
+
+        historyList.unshift({user, amount, result, time});
+        if(historyList.length > 5) historyList.pop();
+
+        historyDiv.innerHTML = "";
+        historyList.forEach(item => {
+            historyDiv.innerHTML += `
+            <div class="history-item">
+                <span>${item.user} | ₹${item.amount}<br><small>${item.time}</small></span>
+                <span class="badge ${item.result === 'Safe' ? 'safe-badge' : 'fraud-badge'}">
+                    ${item.result}
+                </span>
+            </div>`;
+        });
+
+    }, 800);
+}
+
+function resetForm(){
+    document.getElementById("user").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("status").innerHTML = "Awaiting Input...";
+    document.getElementById("status").style.color = "#aaa";
+
+    let bar = document.getElementById("bar");
+    bar.style.width = "0%";
+    bar.className = "progress-bar";
+}
+</script>
+
+</head>
+
+<body>
+
+<div class="header">
+    <h2>RiskSense AI</h2>
+    <a href="/"><button class="logout">Logout</button></a>
+</div>
+
+<div class="container">
+    <div class="card">
+
+        <h2>Transaction Risk Analyzer</h2>
+        <p class="subtitle">Real-Time AI Fraud Detection System</p>
+
+        <input id="user" type="text" placeholder="Enter User ID">
+
+        <input id="amount" type="number" placeholder="Enter Transaction Amount">
+
+        <select>
+            <option>Processing Time</option>
+            <option>Instant</option>
+            <option>1 sec</option>
+            <option>2 sec</option>
+        </select>
+
+        <button onclick="checkRisk()">Analyze Transaction</button>
+
+        <p id="status">Awaiting Input...</p>
+
+        <div class="progress">
+            <div id="bar" class="progress-bar"></div>
+        </div>
+
+        <button onclick="resetForm()">Check Another Transaction</button>
+
+        <div class="recent">
+            <h4>Recent Transactions</h4>
+            <div id="history"></div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
