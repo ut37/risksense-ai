@@ -2,6 +2,10 @@
 <html>
 <head>
     <title>RiskSense AI</title>
+
+    <!-- 🔥 ADDED: Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         select {
             background: rgba(255,255,255,0.08);
@@ -179,6 +183,10 @@
 
     <button class="secondary-btn" onclick="resetForm()">Check Another Transaction</button>
 
+    <!-- 🔥 ADDED GRAPH -->
+    <h3 style="margin-top: 20px;">Risk Trend</h3>
+    <canvas id="riskChart" height="120"></canvas>
+
     <div style="margin-top: 25px; text-align: left;">
         <h3 style="margin-bottom: 12px;">Recent Transactions</h3>
         <div id="historyBox" style="max-height: 220px; overflow-y: auto;">
@@ -204,80 +212,65 @@
     let historyBox = document.getElementById("historyBox");
 
     function getCurrentTime() {
-        const now = new Date();
-        return now.toLocaleString();
+        return new Date().toLocaleString();
     }
 
-    function getProcessingTimeText(value) {
-        if (value == "0") return "Instant";
-        if (value == "1") return "1 sec";
-        if (value == "2") return "2 sec";
-        return "N/A";
-    }
-
-    function getNewDeviceText(value) {
-        if (value == "1") return "Yes";
-        if (value == "0") return "No";
-        return "N/A";
-    }
+    function getProcessingTimeText(v){ return v=="0"?"Instant":v=="1"?"1 sec":v=="2"?"2 sec":"N/A"; }
+    function getNewDeviceText(v){ return v=="1"?"Yes":v=="0"?"No":"N/A"; }
 
     function saveTransaction(userId, amount, timeText, resultText, riskValue, failedAttempts, isNewDevice, avgAmount) {
-        let transactions = JSON.parse(localStorage.getItem("recentTransactions")) || [];
+        let t = JSON.parse(localStorage.getItem("recentTransactions")) || [];
 
-        let newTransaction = {
-            userId: userId,
-            amount: amount,
-            processingTime: timeText,
-            result: resultText,
-            risk: riskValue,
-            failedAttempts: failedAttempts,
-            isNewDevice: isNewDevice,
-            avgAmount: avgAmount,
-            timestamp: getCurrentTime()
-        };
+        t.unshift({userId,amount,processingTime:timeText,result:resultText,risk:riskValue,failedAttempts,isNewDevice,avgAmount,timestamp:getCurrentTime()});
+        if(t.length>5) t=t.slice(0,5);
 
-        transactions.unshift(newTransaction);
-
-        if (transactions.length > 5) {
-            transactions = transactions.slice(0, 5);
-        }
-
-        localStorage.setItem("recentTransactions", JSON.stringify(transactions));
+        localStorage.setItem("recentTransactions", JSON.stringify(t));
     }
 
     function renderTransactions() {
-        let transactions = JSON.parse(localStorage.getItem("recentTransactions")) || [];
+        let t = JSON.parse(localStorage.getItem("recentTransactions")) || [];
 
-        if (transactions.length === 0) {
-            historyBox.innerHTML = '<p style="opacity: 0.7;">No recent transactions yet.</p>';
+        if (!t.length) {
+            historyBox.innerHTML = '<p style="opacity:0.7;">No recent transactions yet.</p>';
             return;
         }
 
         historyBox.innerHTML = "";
 
-        transactions.forEach((txn) => {
-            let color = txn.result.includes("Fraud") ? "#ff4d4d" : "#00ff99";
+        t.forEach(txn=>{
+            let color = txn.result.includes("Fraud")?"#ff4d4d":"#00ff99";
 
             historyBox.innerHTML += `
-                <div style="
-                    background: rgba(255,255,255,0.06);
-                    border-radius: 10px;
-                    padding: 10px;
-                    margin-bottom: 10px;
-                    font-size: 13px;
-                    line-height: 1.6;
-                ">
-                    <div><b>User ID:</b> ${txn.userId}</div>
-                    <div><b>Amount:</b> ₹${txn.amount}</div>
-                    <div><b>Processing:</b> ${txn.processingTime}</div>
-                    <div><b>Failed Attempts:</b> ${txn.failedAttempts}</div>
-                    <div><b>New Device:</b> ${txn.isNewDevice}</div>
-                    <div><b>Average Amount:</b> ₹${txn.avgAmount}</div>
-                    <div><b>Time:</b> ${txn.timestamp}</div>
-                    <div><b>Risk Score:</b> ${txn.risk}%</div>
-                    <div><b>Status:</b> <span style="color:${color}; font-weight:bold;">${txn.result}</span></div>
-                </div>
-            `;
+            <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;margin-bottom:10px;font-size:13px;">
+            <div><b>User ID:</b> ${txn.userId}</div>
+            <div><b>Amount:</b> ₹${txn.amount}</div>
+            <div><b>Risk:</b> ${txn.risk}%</div>
+            <div><b>Status:</b> <span style="color:${color};font-weight:bold;">${txn.result}</span></div>
+            </div>`;
+        });
+    }
+
+    // 🔥 CHART
+    function drawChart(){
+        let t = JSON.parse(localStorage.getItem("recentTransactions")) || [];
+        if(!t.length) return;
+
+        let ctx = document.getElementById("riskChart").getContext("2d");
+
+        if(window.chart) window.chart.destroy();
+
+        window.chart = new Chart(ctx,{
+            type:"line",
+            data:{
+                labels:t.map((_,i)=>"T"+(i+1)).reverse(),
+                datasets:[{
+                    data:t.map(x=>x.risk).reverse(),
+                    borderColor:"#00e5ff",
+                    backgroundColor:"rgba(0,229,255,0.1)",
+                    fill:true
+                }]
+            },
+            options:{plugins:{legend:{display:false}}}
         });
     }
 
@@ -287,28 +280,19 @@
         if (result.includes("Fraud")) {
             status.className = "fraud";
             bar.style.background = "#ff4d4d";
+
+            // 🚨 ALERT
+            setTimeout(()=>alert("🚨 FRAUD DETECTED!"),300);
+
         } else {
             status.className = "safe";
             bar.style.background = "#00ff99";
         }
 
-        setTimeout(() => {
-            bar.style.width = risk + "%";
-            percentText.innerText = "Risk Score: " + risk + "%";
-        }, 300);
+        bar.style.width = risk + "%";
+        percentText.innerText = "Risk Score: " + risk + "%";
 
-        if (userIdFromServer !== "" && amountFromServer !== "") {
-            saveTransaction(
-                userIdFromServer,
-                amountFromServer,
-                getProcessingTimeText(timeFromServer),
-                result,
-                risk,
-                failedAttemptsFromServer,
-                getNewDeviceText(isNewDeviceFromServer),
-                avgAmountFromServer
-            );
-        }
+        saveTransaction(userIdFromServer,amountFromServer,getProcessingTimeText(timeFromServer),result,risk,failedAttemptsFromServer,getNewDeviceText(isNewDeviceFromServer),avgAmountFromServer);
     }
 
     function resetForm() {
@@ -316,6 +300,7 @@
     }
 
     renderTransactions();
+    drawChart();
 </script>
 
 </body>
