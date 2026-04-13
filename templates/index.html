@@ -3,63 +3,72 @@
 <head>
     <title>RiskSense AI</title>
 
-    <!-- 🔥 ADDED: Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        select {
-            background: rgba(255,255,255,0.08);
-            color: white;
-        }
+       body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    margin: 0;
+    color: white;
 
-        select option {
-            background: #1e1e1e; 
-            color: white;
-        }
+    display: flex;
+    justify-content: center;
 
-        select option:hover {
-            background: #00e5ff;
-            color: black;
-        }
+    align-items: flex-start;   
+    min-height: 100vh;
+    overflow-y: auto;          
+}
 
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        .layout {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: white;
-            position: relative;
+            gap: 25px;
+            align-items: stretch;
         }
+        html, body {
+    height: auto;
+}
 
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: bold;
-            width: auto;
+        .side {
+            width: 240px;
+            background: rgba(10, 15, 20, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 20px;
+            text-align: center;
+
+            border: 1px solid rgba(0, 229, 255, 0.3);
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            animation: glowPulse 3s infinite alternate;
+             min-height: 650px;
+}
+        
+
+        @keyframes glowPulse {
+            0% {
+                box-shadow: 0 0 10px rgba(0,229,255,0.2);
+            }
+            100% {
+                box-shadow: 0 0 30px rgba(0,229,255,0.5);
+            }
         }
 
         .container {
-            background: rgba(30, 30, 30, 0.70);
-            backdrop-filter: blur(6px);
+            background: rgba(30, 30, 30, 0.75);
             padding: 35px;
             border-radius: 18px;
-            box-shadow: 0 0 25px rgba(0, 229, 255, 0.18);
             width: 380px;
+            height: 650px;
             text-align: center;
-            max-height: 90vh;
-            overflow-y: auto;
+            overflow: hidden;
+             min-height: 650px;
+             box-shadow: 0 0 25px rgba(0, 229, 255, 0.2);
         }
+        
 
         input, select {
             width: 100%;
@@ -69,7 +78,11 @@
             background: rgba(255,255,255,0.08);
             color: white;
             border: none;
-            box-sizing: border-box;
+        }
+
+        select option {
+            background: #0b1a20;
+            color: white;
         }
 
         button {
@@ -80,42 +93,33 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            box-sizing: border-box;
         }
 
-        .secondary-btn {
-            margin-top: 10px;
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #00e5ff;
         }
 
-        #status {
-            margin-top: 16px;
-            font-size: 18px;
-            font-weight: bold;
+        .secondary-btn { margin-top: 10px; }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4d4d;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            z-index: 1000;
+             width: auto !important;   
+    display: inline-block;    
+    font-size: 13px;
+    font-weight: bold;
+
         }
 
-        .safe {
-            color: #00ff99;
-            font-size: 20px;
-            text-shadow: 0 0 10px rgba(0,255,153,0.8);
-            animation: blinkSafe 1s infinite;
-        }
-
-        .fraud {
-            color: #ff4d4d;
-            font-size: 20px;
-            text-shadow: 0 0 10px rgba(255,77,77,0.8);
-            animation: blinkFraud 1s infinite;
-        }
-
-        @keyframes blinkSafe {
-            0%,100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        @keyframes blinkFraud {
-            0%,100% { opacity: 1; }
-            50% { opacity: 0.2; }
-        }
 
         .progress {
             width: 100%;
@@ -123,21 +127,16 @@
             background: #6a5a52;
             border-radius: 10px;
             margin: 16px auto;
-            overflow: hidden;
-            box-sizing: border-box;
         }
 
         .progress-bar {
             height: 100%;
             width: 0%;
             border-radius: 10px;
-            transition: width 0.8s ease;
         }
 
-        #percent {
-            font-size: 14px;
-            margin-top: 5px;
-        }
+        .safe { color: #00ff99; }
+        .fraud { color: #ff4d4d; }
     </style>
 </head>
 
@@ -145,163 +144,219 @@
 
 <button class="logout-btn" onclick="window.location.href='/'">Logout</button>
 
-<div class="container">
+<div class="layout">
 
-    <h2>AI Transaction Risk Analyzer</h2>
-
-    <form method="POST" action="/predict">
-        <input name="userId" id="userId" type="text" placeholder="Enter User ID" required>
-        <input name="amount" id="amount" type="number" placeholder="Enter Transaction Amount" required>
-
-        <select name="time" id="time" required>
-            <option value="">Processing Time</option>
-            <option value="0">Instant</option>
-            <option value="1">1 sec</option>
-            <option value="2">2 sec</option>
-        </select>
-
-        <input name="failed_attempts" id="failed_attempts" type="number" placeholder="Failed Attempts" required>
-
-        <select name="is_new_device" id="is_new_device" required>
-            <option value="">Is New Device?</option>
-            <option value="0">No</option>
-            <option value="1">Yes</option>
-        </select>
-
-        <input name="avg_amount" id="avg_amount" type="number" placeholder="Average Transaction Amount" required>
-
-        <button type="submit">Analyze Transaction</button>
-    </form>
-
-    <p id="status"></p>
-
-    <div class="progress">
-        <div id="bar" class="progress-bar"></div>
+    <!-- LEFT PANEL -->
+    <div class="side">
+        <h3>Fraud Analysis</h3>
+        <canvas id="pieChart"></canvas>
     </div>
 
-    <p id="percent">0%</p>
+    <!-- MAIN -->
+    <div class="container">
 
-    <button class="secondary-btn" onclick="resetForm()">Check Another Transaction</button>
+        <h2>AI Transaction Risk Analyzer</h2>
 
-    <!-- 🔥 ADDED GRAPH -->
-    <h3 style="margin-top: 20px;">Risk Trend</h3>
-    <canvas id="riskChart" height="120"></canvas>
+        <form method="POST" action="/predict">
+            <input name="userId" required placeholder="User ID">
+            <input name="amount" type="number" required placeholder="Amount">
 
-    <div style="margin-top: 25px; text-align: left;">
-        <h3 style="margin-bottom: 12px;">Recent Transactions</h3>
-        <div id="historyBox" style="max-height: 220px; overflow-y: auto;">
-            <p style="opacity: 0.7;">No recent transactions yet.</p>
+            <select name="time" required>
+                <option value="">Time</option>
+                <option value="0">Instant</option>
+                <option value="1">1 sec</option>
+                <option value="2">2 sec</option>
+            </select>
+
+            <input name="failed_attempts" type="number" required placeholder="Failed Attempts">
+
+            <select name="is_new_device" required>
+                <option value="">New Device?</option>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <input name="avg_amount" type="number" required placeholder="Avg Amount">
+
+            <button type="submit">Analyze Transaction</button>
+        </form>
+
+        <p id="status"></p>
+
+        <div class="progress">
+            <div id="bar" class="progress-bar"></div>
         </div>
+
+        <p id="percent">0%</p>
+
+        <button class="secondary-btn" onclick="resetForm()">Check Another Transaction</button>
+
+        <h3>Risk Trend</h3>
+        <canvas id="riskChart" height="120"></canvas>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="side">
+        <h3>Live Stats</h3>
+        <p>Total: <span id="total">0</span></p>
+        <p>Fraud: <span id="frauds">0</span></p>
+        <p>Safe: <span id="safe">0</span></p>
     </div>
 
 </div>
-
 <script>
-    let risk = parseFloat('{{ risk|default(0) }}') || 0;
-    let result = "{{ result|default('') }}";
-    let userIdFromServer = "{{ userId|default('') }}";
-    let amountFromServer = "{{ amount|default('') }}";
-    let timeFromServer = "{{ time|default('') }}";
-    let failedAttemptsFromServer = "{{ failed_attempts|default('') }}";
-    let isNewDeviceFromServer = "{{ is_new_device|default('') }}";
-    let avgAmountFromServer = "{{ avg_amount|default('') }}";
+let risk = parseFloat('{{ risk|default(0) }}') || 0;
+let result = "{{ result|default('') }}";
 
-    let status = document.getElementById("status");
-    let bar = document.getElementById("bar");
-    let percentText = document.getElementById("percent");
-    let historyBox = document.getElementById("historyBox");
+let status = document.getElementById("status");
+let bar = document.getElementById("bar");
 
-    function getCurrentTime() {
-        return new Date().toLocaleString();
-    }
+// ✅ FIX: prevent duplicate counting
+let alreadyProcessed = sessionStorage.getItem("processed");
 
-    function getProcessingTimeText(v){ return v=="0"?"Instant":v=="1"?"1 sec":v=="2"?"2 sec":"N/A"; }
-    function getNewDeviceText(v){ return v=="1"?"Yes":v=="0"?"No":"N/A"; }
+// 🔥 Animate Stats
+function animateValue(id, start, end, duration) {
+    let range = end - start;
+    if(range === 0) return;
 
-    function saveTransaction(userId, amount, timeText, resultText, riskValue, failedAttempts, isNewDevice, avgAmount) {
-        let t = JSON.parse(localStorage.getItem("recentTransactions")) || [];
+    let current = start;
+    let increment = end > start ? 1 : -1;
+    let stepTime = Math.abs(Math.floor(duration / range));
 
-        t.unshift({userId,amount,processingTime:timeText,result:resultText,risk:riskValue,failedAttempts,isNewDevice,avgAmount,timestamp:getCurrentTime()});
-        if(t.length>5) t=t.slice(0,5);
+    let timer = setInterval(function () {
+        current += increment;
+        document.getElementById(id).innerText = current;
+        if (current == end) clearInterval(timer);
+    }, stepTime);
+}
 
-        localStorage.setItem("recentTransactions", JSON.stringify(t));
-    }
+function loadStats(){
+    let total = parseInt(localStorage.getItem("total")) || 0;
+    let frauds = parseInt(localStorage.getItem("frauds")) || 0;
+    let safe = parseInt(localStorage.getItem("safe")) || 0;
 
-    function renderTransactions() {
-        let t = JSON.parse(localStorage.getItem("recentTransactions")) || [];
+    animateValue("total", 0, total, 500);
+    animateValue("frauds", 0, frauds, 500);
+    animateValue("safe", 0, safe, 500);
+}
 
-        if (!t.length) {
-            historyBox.innerHTML = '<p style="opacity:0.7;">No recent transactions yet.</p>';
-            return;
+// 🔥 Update Stats
+function updateStats(result){
+    let total = parseInt(localStorage.getItem("total")) || 0;
+    let frauds = parseInt(localStorage.getItem("frauds")) || 0;
+    let safe = parseInt(localStorage.getItem("safe")) || 0;
+
+    total++;
+    if(result.includes("Fraud")) frauds++;
+    else safe++;
+
+    localStorage.setItem("total", total);
+    localStorage.setItem("frauds", frauds);
+    localStorage.setItem("safe", safe);
+
+    loadStats();
+    drawPie(frauds, safe);
+}
+
+// 🔥 PIE
+function drawPie(fraud, safe){
+    let ctx = document.getElementById("pieChart").getContext("2d");
+
+    if(window.pie) window.pie.destroy();
+
+    window.pie = new Chart(ctx,{
+        type:"doughnut",
+        data:{
+            labels:["Fraud","Safe"],
+            datasets:[{
+                data:[fraud,safe],
+                backgroundColor:["#ff4d4d","#00ff99"]
+            }]
+        },
+        options:{
+            plugins:{
+                legend:{labels:{color:"white"}}
+            }
         }
+    });
+}
 
-        historyBox.innerHTML = "";
+// 🔥 LINE GRAPH
+function drawLine(){
+    let arr = JSON.parse(localStorage.getItem("riskData")) || [];
+    if(!arr.length) return;
 
-        t.forEach(txn=>{
-            let color = txn.result.includes("Fraud")?"#ff4d4d":"#00ff99";
+    let ctx=document.getElementById("riskChart").getContext("2d");
 
-            historyBox.innerHTML += `
-            <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px;margin-bottom:10px;font-size:13px;">
-            <div><b>User ID:</b> ${txn.userId}</div>
-            <div><b>Amount:</b> ₹${txn.amount}</div>
-            <div><b>Risk:</b> ${txn.risk}%</div>
-            <div><b>Status:</b> <span style="color:${color};font-weight:bold;">${txn.result}</span></div>
-            </div>`;
-        });
+    if(window.line) window.line.destroy();
+
+    window.line=new Chart(ctx,{
+        type:"line",
+        data:{
+            labels:arr.map((_,i)=>"T"+(i+1)),
+            datasets:[{
+                label:"Risk %",
+                data:arr,
+                borderColor:"#00e5ff",
+                backgroundColor:"rgba(0,229,255,0.2)",
+                fill:true,
+                tension:0.4
+            }]
+        },
+        options:{
+            plugins:{ legend:{display:false} }
+        }
+    });
+}
+
+// 🔥 RESULT
+if(result !== "" && !alreadyProcessed){
+
+    status.innerText=result;
+
+    if(result.includes("Fraud")){
+        status.className="fraud";
+        bar.style.background="#ff4d4d";
+        setTimeout(()=>alert("🚨 Fraud Detected!"),300);
+    } else {
+        status.className="safe";
+        bar.style.background="#00ff99";
     }
 
-    // 🔥 CHART
-    function drawChart(){
-        let t = JSON.parse(localStorage.getItem("recentTransactions")) || [];
-        if(!t.length) return;
-
-        let ctx = document.getElementById("riskChart").getContext("2d");
-
-        if(window.chart) window.chart.destroy();
-
-        window.chart = new Chart(ctx,{
-            type:"line",
-            data:{
-                labels:t.map((_,i)=>"T"+(i+1)).reverse(),
-                datasets:[{
-                    data:t.map(x=>x.risk).reverse(),
-                    borderColor:"#00e5ff",
-                    backgroundColor:"rgba(0,229,255,0.1)",
-                    fill:true
-                }]
-            },
-            options:{plugins:{legend:{display:false}}}
-        });
-    }
-
-    if (result !== "") {
-        status.innerText = result;
-
-        if (result.includes("Fraud")) {
-            status.className = "fraud";
-            bar.style.background = "#ff4d4d";
-
-            // 🚨 ALERT
-            setTimeout(()=>alert("🚨 FRAUD DETECTED!"),300);
-
+    // Animated bar
+    let i=0;
+    let interval=setInterval(()=>{
+        if(i>=risk){
+            clearInterval(interval);
         } else {
-            status.className = "safe";
-            bar.style.background = "#00ff99";
+            i++;
+            bar.style.width=i+"%";
+            document.getElementById("percent").innerText="Risk Score: "+i+"%";
         }
+    },10);
 
-        bar.style.width = risk + "%";
-        percentText.innerText = "Risk Score: " + risk + "%";
+    let arr = JSON.parse(localStorage.getItem("riskData")) || [];
+    arr.push(risk);
+    localStorage.setItem("riskData", JSON.stringify(arr));
 
-        saveTransaction(userIdFromServer,amountFromServer,getProcessingTimeText(timeFromServer),result,risk,failedAttemptsFromServer,getNewDeviceText(isNewDeviceFromServer),avgAmountFromServer);
-    }
+    updateStats(result);
 
-    function resetForm() {
-        window.location.href = "/dashboard";
-    }
+    // ✅ mark processed
+    sessionStorage.setItem("processed","true");
+}
 
-    renderTransactions();
-    drawChart();
+function resetForm(){
+    sessionStorage.removeItem("processed"); // ✅ reset fix
+    window.location.href="/dashboard";
+}
+
+loadStats();
+drawLine();
+drawPie(
+    parseInt(localStorage.getItem("frauds"))||0,
+    parseInt(localStorage.getItem("safe"))||0
+);
 </script>
-
 </body>
 </html>
