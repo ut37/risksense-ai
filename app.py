@@ -4,7 +4,6 @@ from model import predict_risk
 app = Flask(__name__)
 
 
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -12,7 +11,7 @@ def login():
         password = request.form.get('password')
 
         if username == 'admin' and password == '1234':
-            return redirect('/welcome')  
+            return redirect('/welcome')
         else:
             return render_template('login.html', error="Invalid Credentials")
 
@@ -24,11 +23,9 @@ def welcome():
     return render_template('welcome.html')
 
 
-
 @app.route('/dashboard')
 def dashboard():
     return render_template('index.html', result="", risk=0)
-
 
 
 @app.route('/predict', methods=['POST'])
@@ -41,7 +38,6 @@ def predict():
         is_new_device = int(request.form.get('is_new_device') or 0)
         avg_amount = float(request.form.get('avg_amount') or 0)
 
-        
         if time_value == "0":
             hour = 10
         elif time_value == "1":
@@ -49,10 +45,11 @@ def predict():
         else:
             hour = 23
 
-        pred, risk = predict_risk(amount, hour, failed_attempts, is_new_device, avg_amount)
+      
+        pred, prob = predict_risk(amount, hour, failed_attempts, is_new_device, avg_amount)
 
        
-        risk = max(0, min(round(risk * 100, 2), 100))
+        risk = max(0, min(round(prob * 100, 2), 100))
 
        
         if pred == 1:
@@ -76,6 +73,5 @@ def predict():
         return f"Error: {str(e)}"
 
 
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
